@@ -33,15 +33,15 @@ getPublicIpAddress() {
     DNS_SERVER=${DNS_SERVER:=1.1.1.1}
 
     # try dns method first.
-    CLOUD_FLARE_IP=$(dig +short @$DNS_SERVER whoami.cloudflare +time=3 | tr -d '"')
-    CLOUD_FLARE_IP_LEN=${#CLOUD_FLARE_IP}
+    #CLOUD_FLARE_IP=$(dig +short @$DNS_SERVER ch txt whoami.cloudflare +time=3 | tr -d '"')
+    #CLOUD_FLARE_IP_LEN=${#CLOUD_FLARE_IP}
 
     # if using cloud flare fails, try opendns (some ISPs block 1.1.1.1)
-    IP_ADDRESS=$([ $CLOUD_FLARE_IP_LEN -gt 15 ] && echo $(dig +short myip.opendns.com @resolver1.opendns.com +time=3) || echo "$CLOUD_FLARE_IP")
-
+    #IP_ADDRESS=$([ $CLOUD_FLARE_IP_LEN -gt 15 ] && echo $(dig +short myip.opendns.com @resolver1.opendns.com +time=3) || echo "$CLOUD_FLARE_IP")
+    IP_ADDRESS=$(dig +short myip.opendns.com ANY @resolver1.opendns.com +time=3)
     # if dns method fails, use http method
     if [ "$IP_ADDRESS" = "" ]; then
-      IP_ADDRESS=$(curl -sf4 https://ipinfo.io | jq -r '.ip')
+      IP_ADDRESS=$(curl https://api.ipify.org)
     fi
 
     echo $IP_ADDRESS
@@ -51,7 +51,7 @@ getPublicIpAddress() {
 
     # if dns method fails, use http method
     if [ "$IP_ADDRESS" = "" ]; then
-      IP_ADDRESS=$(curl -sf6 https://ifconfig.co)
+      IP_ADDRESS=$(curl https://api6.ipify.org)
     fi
 
     echo $IP_ADDRESS
